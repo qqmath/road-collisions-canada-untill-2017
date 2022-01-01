@@ -19,7 +19,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     package_data={
         'road_collisions_canada': [
-            'resources/ca/ca.csv.tgz'
+            'resources/canada/ca.csv.tgz'
         ]
     },
     entry_points={
