@@ -96,11 +96,11 @@ class Collisions(GenericObjects):
         )
 
     @staticmethod
-    def load_all(region=None, year=None):
+    def load_all(year=None):
         import road_collisions_canada
         return Collisions.from_dir(
             os.path.join(road_collisions_canada.__path__[0], 'resources'),
-            region=region,
+            region='canada',
             year=year
         )
 
