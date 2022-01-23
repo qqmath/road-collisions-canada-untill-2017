@@ -35,5 +35,5 @@ test: build test_requirements quick_test
 quick_test:
 	$(IN_ENV) $(PYTHON) -m unittest
 
-load:
+load: setup
 	$(IN_ENV) load_road_collisions_canada
