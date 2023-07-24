@@ -10,9 +10,8 @@ def main():
     logger.info('Loaded %s collisions', (len(collisions)))
     logger.info('Do something with the data in the variable \'collisions\'...')
 
-    import pdb; pdb.set_trace()
-
-    pass
+    import pdb
+    pdb.set_trace()
 
 
 if __name__ == '__main__':

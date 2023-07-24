@@ -20,26 +20,25 @@ class Collisions(GenericObjects):
         data = None
 
         ext = os.path.splitext(filepath)[-1]
-        if ext == '.tgz' or ext == '.gz':
-            tar = tarfile.open(filepath, "r:gz")
-            tar.extractall(path=os.path.dirname(filepath))
-            tar.close()
-
-            data = []
-            for sub_file in glob.iglob(os.path.dirname(filepath) + '/**', recursive=True):
-                ext = os.path.splitext(sub_file)[-1]
-                if ext == '.csv':
-                    csv_data = pd.read_csv(
-                        sub_file.replace('.csv.tgz', '.csv')
-                    ).to_dict(orient='records')
-
-                    if year is None:
-                        data.extend(csv_data)
-                    else:
-                        data.extend([d for d in csv_data if d['C_YEAR'] == year])
-
-        else:
+        if ext not in ['.tgz', '.gz']:
             raise Exception()
+
+        tar = tarfile.open(filepath, "r:gz")
+        tar.extractall(path=os.path.dirname(filepath))
+        tar.close()
+
+        data = []
+        for sub_file in glob.iglob(os.path.dirname(filepath) + '/**', recursive=True):
+            ext = os.path.splitext(sub_file)[-1]
+            if ext == '.csv':
+                csv_data = pd.read_csv(
+                    sub_file.replace('.csv.tgz', '.csv')
+                ).to_dict(orient='records')
+
+                if year is None:
+                    data.extend(csv_data)
+                else:
+                    data.extend([d for d in csv_data if d['C_YEAR'] == year])
 
         collisions = Collisions()
         for collision_dict in data:
@@ -57,15 +56,11 @@ class Collisions(GenericObjects):
     @staticmethod
     def from_dir(dirpath, region=None, year=None):
         collisions = Collisions()
-        if region is None:
-            search_dir = f'{dirpath}/**'
-        else:
-            search_dir = f'{dirpath}/{region}/**'
-
+        search_dir = f'{dirpath}/**' if region is None else f'{dirpath}/{region}/**'
         for filename in glob.iglob(search_dir, recursive=True):
             if os.path.splitext(filename)[-1] not in {'.tgz', '.gz'}:
                 continue
-           
+
             collision = Collisions.from_file(
                 filename,
                 year=year
@@ -81,14 +76,12 @@ class Collisions(GenericObjects):
         '''
         By whatever props that exist
         '''
-        logger.debug('Filtering from %s' % (len(self)))
+        logger.debug(f'Filtering from {len(self)}')
 
         filtered = [
-            d for d in self if all(
-                [
-                    getattr(d, attr) == kwargs[attr] for attr in kwargs.keys()
-                ]
-            )
+            d
+            for d in self
+            if all(getattr(d, attr) == kwargs[attr] for attr in kwargs)
         ]
 
         return Collisions(
@@ -163,12 +156,7 @@ class Collision(RawCollision):
 
     @staticmethod
     def parse(data):
-        if isinstance(data, Collision):
-            return data
-
-        return Collision(
-            **data
-        )
+        return data if isinstance(data, Collision) else Collision(**data)
 
     def serialize(self):
         return {
